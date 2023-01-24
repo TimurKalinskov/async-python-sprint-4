@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from core.config import app_settings
+from core.logger import LOGGING
 from api.v1 import base as v1_base
 
 
@@ -21,5 +22,6 @@ if __name__ == '__main__':
         'main:app',
         host=app_settings.project_host,
         port=app_settings.project_port,
-        reload=True
+        reload=True,
+        log_config=LOGGING
     )
