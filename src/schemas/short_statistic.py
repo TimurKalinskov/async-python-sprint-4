@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, AnyUrl
+from pydantic import BaseModel, AnyHttpUrl
 
 from schemas.short import ShortUrl
 
@@ -12,7 +12,7 @@ class ShortUrlStatisticBase(BaseModel):
 
 
 class ShortUrlStatisticCreate(ShortUrlStatisticBase):
-    url_short: AnyUrl
+    url_short: AnyHttpUrl
 
 
 class ShortUrlStatisticDBBase(ShortUrlStatisticBase):

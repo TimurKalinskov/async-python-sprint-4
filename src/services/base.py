@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, Generic, Optional, Type, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -45,29 +45,32 @@ class RepositoryDB(Repository,
 
     async def get_multi(
         self, db: AsyncSession, *, skip=0, limit=100
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         statement = select(self._model).offset(skip).limit(limit)
         results = await db.execute(statement=statement)
         return results.scalars().all()
 
     async def create(
-            self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = self._model(**obj_in_data)
-        db.add(db_obj)
+            self, db: AsyncSession, *, objects_in: list[CreateSchemaType]
+    ) -> list[ModelType]:
+        objects_in_data = jsonable_encoder(objects_in)
+        db_objects = [
+            self._model(**obj) for obj in objects_in_data
+        ]
+        db.add_all(db_objects)
         try:
             await db.commit()
         except IntegrityError:
             raise CreateException
-        await db.refresh(db_obj)
-        return db_obj
+        [await db.refresh(obj) for obj in db_objects]
+        return db_objects
 
     async def update(
         self,
         db: AsyncSession,
         *,
         db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        obj_in: UpdateSchemaType | dict[str, Any]
     ) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         query = (

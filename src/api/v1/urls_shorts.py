@@ -69,24 +69,22 @@ async def read_short_url(
 @router.post(
     '/',
     status_code=status.HTTP_201_CREATED,
-    response_model=short_schema.ShortUrl
+    response_model=list[short_schema.ShortUrl]
 )
 async def create_short_url(
         *,
         db: AsyncSession = Depends(get_session),
-        url_in: short_schema.ShortUrlCreate
+        url_in: list[short_schema.ShortUrlCreate]
 ) -> Any:
     """
     Create new short url.
     """
-    short_url_received = bool(url_in.url_short)
     try:
-        short_url = await short_crud.create(db=db, obj_in=url_in)
+        short_url = await short_crud.create(db=db, objects_in=url_in)
     except CreateException:
-        refinement = ' or short url ' if short_url_received else ' '
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f'Record with this url{refinement}already exists'
+            detail='Record with this url already exists'
         )
     return short_url
 

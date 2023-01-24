@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, HttpUrl, AnyUrl
+from pydantic import BaseModel, HttpUrl, AnyHttpUrl
 
 
 class UrlBase(BaseModel):
@@ -9,7 +9,7 @@ class UrlBase(BaseModel):
 
 
 class ShortUrlCreate(UrlBase):
-    url_short: Optional[AnyUrl] = None
+    url_short: Optional[AnyHttpUrl] = None
 
 
 class ShortUrlUpdate(UrlBase):
@@ -19,7 +19,7 @@ class ShortUrlUpdate(UrlBase):
 class ShortUrlInDBBase(UrlBase):
     id: int
     url: HttpUrl
-    url_short: AnyUrl
+    url_short: AnyHttpUrl
     created_at: datetime
 
     class Config:

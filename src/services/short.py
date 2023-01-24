@@ -12,18 +12,20 @@ from schemas.short import ShortUrlCreate, ShortUrlUpdate
 class RepositoryShort(RepositoryDB[Short, ShortUrlCreate, ShortUrlUpdate]):
 
     async def create(
-            self, db: AsyncSession, *, obj_in: ShortUrlCreate) -> Short:
-        if not obj_in.url_short:
-            # generation of a short url and checking it not exists in the db
-            short_url = generate_short_url(obj_in.url)
-            statement = select(Short).where(Short.url_short == short_url)
-            exist_url = await db.execute(statement=statement)
-            while exist_url.scalar_one_or_none():
-                short_url = generate_short_url(obj_in.url)
+            self, db: AsyncSession, *, objects_in: list[ShortUrlCreate]
+    ) -> list[Short]:
+        for obj in objects_in:
+            if not obj.url_short:
+                # generation of a short url and checking it not exists in the db
+                short_url = generate_short_url(obj.url)
+                statement = select(Short).where(Short.url_short == short_url)
                 exist_url = await db.execute(statement=statement)
-            obj_in.url_short = short_url
+                while exist_url.scalar_one_or_none():
+                    short_url = generate_short_url(obj.url)
+                    exist_url = await db.execute(statement=statement)
+                obj.url_short = short_url
 
-        return await super().create(db=db, obj_in=obj_in)
+        return await super().create(db=db, objects_in=objects_in)
 
     async def get_multi(
         self, db: AsyncSession, *, skip=0, limit=100

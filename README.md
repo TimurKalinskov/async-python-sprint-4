@@ -51,7 +51,7 @@ GET /<url_id>/status?[full-info]&&[max-result=10]&&[offset=0]
 - [X] (1 балл) Реализуйте возможность "удаления" сохраненного URL. Запись должна оставаться, но помечаться как удаленная. При попытке получения полного URL возвращать ответ с кодом `410 Gone`.
 
 - [ ] (2 балла) Реализуйте **middlware**, блокирующий доступ к сервису запросов из запрещенных подсетей (black list).
-- [ ] (2 балла) Реализуйте возможность передавать ссылки пачками (batch upload).
+- [X] (2 балла) Реализуйте возможность передавать ссылки пачками (batch upload).
 
 <details>
 <summary> Описание изменений </summary>
@@ -60,7 +60,8 @@ GET /<url_id>/status?[full-info]&&[max-result=10]&&[offset=0]
 ```python
 [
     {
-        "original_url": "URL for shorten"
+        "url": "URL for shorten",
+        "url_short": "https://..." # optional
     },
     ...
 ]
@@ -70,8 +71,10 @@ GET /<url_id>/status?[full-info]&&[max-result=10]&&[offset=0]
 ```python
 [
     {
-        "url_id": "<text-id>",
-        "short_url": "https://...",
+        "id": "<text-id>",
+        "url": "original URL",
+        "url_short": "https://...",
+        "created_at": "<datetime>"
     },
     ...
 ]
