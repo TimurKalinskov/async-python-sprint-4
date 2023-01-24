@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -11,6 +11,7 @@ class Short(Base):
     url = Column(String(2048), unique=True, nullable=False)
     url_short = Column(String(256), unique=True, nullable=False)
     created_at = Column(DateTime, index=True, default=datetime.utcnow)
+    deleted = Column(Boolean, default=False, nullable=False, server_default='f')
 
     statistics = relationship('ShortStatistic')
 

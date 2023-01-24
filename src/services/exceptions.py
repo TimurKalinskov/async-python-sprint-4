@@ -4,3 +4,7 @@ class CreateException(Exception):
 
 class CreateStatisticException(Exception):
     pass
+
+
+class UrlDeletedException(Exception):
+    pass

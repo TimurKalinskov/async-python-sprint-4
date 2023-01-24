@@ -8,7 +8,7 @@ from sqlalchemy.exc import NoResultFound
 from db.db import get_session
 from schemas import short as short_schema
 from services.short import short_crud
-from services.exceptions import CreateException
+from services.exceptions import CreateException, UrlDeletedException
 from services.short_statistic import (
     create_statistic_record, get_full_statistic, get_uses_count
 )
@@ -47,7 +47,12 @@ async def read_short_url(
     """
     Get short url by ID.
     """
-    short_url = await short_crud.get(db=db, pk=pk)
+    try:
+        short_url = await short_crud.get(db=db, pk=pk)
+    except UrlDeletedException:
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE, detail='URL deleted'
+        )
     if not short_url:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='URL not found'
@@ -107,6 +112,27 @@ async def read_short_url_statistic(
                 db=db, pk=pk, skip=skip, limit=limit
             )
         return await get_uses_count(db=db, pk=pk)
+    except NoResultFound:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='URL not found'
+        )
+    except UrlDeletedException:
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE, detail='URL deleted'
+        )
+
+
+@router.delete('/{pk}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_url(
+    *,
+    db: AsyncSession = Depends(get_session),
+    pk: int
+) -> None:
+    """
+    Delete url.
+    """
+    try:
+        await short_crud.delete(db=db, pk=pk)
     except NoResultFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='URL not found'
