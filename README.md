@@ -108,3 +108,50 @@ GET /<url_id>/status?[full-info]&&[max-result=10]&&[offset=0]
 4. Приведите стиль кода в соответствие pep8, flake8, mypy. 
 5. Логируйте результаты действий. 
 6. Покройте написанный код тестами. 
+
+
+## Запуск проекта
+
+1. Установите зависимости:
+```shell
+pip install -r requirements.txt
+```
+2. Перейдите в папку `src`:
+```shell
+cd src
+```
+3. Создайте файл `.env`:
+```shell
+touch .env
+```
+4. Пропишите в этом файле переменные окружения:
+```
+DATABASE_DSN=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db_name>
+# например
+DATABASE_DSN=postgresql+asyncpg://postgres:postgres@localhost:5432/urls_db
+```
+<details>
+<summary> Также можно прописать другие переменные </summary>
+
+```python
+APP_TITLE
+PROJECT_HOST
+PROJECT_PORT
+ECHO_QUERIES
+```
+</details>
+
+5. Запустите миграции
+```shell
+alembic upgrade head
+```
+
+6. Запустите проект:
+```shell
+python main.py
+```
+
+7*. Для запуска тестов:
+```shell
+pytest
+```
