@@ -1,6 +1,7 @@
 from typing import Any
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import NoResultFound
@@ -20,11 +21,16 @@ from schemas.short_statistic import (
 router = APIRouter()
 
 
-@router.get('/', response_model=list[short_schema.ShortUrl])
+@router.get(
+    '/',
+    response_model=list[short_schema.ShortUrl],
+    summary='Get a list of URLs',
+    description='Get a list of URLs and their shorthand representation.'
+)
 async def read_short_urls(
         db: AsyncSession = Depends(get_session),
-        skip: int = 0,
-        limit: int = 100
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=100, ge=0)
 ) -> Any:
     """
     Retrieve list of short urls.
@@ -36,12 +42,14 @@ async def read_short_urls(
 @router.get(
     '/{pk}',
     response_class=RedirectResponse,
-    status_code=status.HTTP_307_TEMPORARY_REDIRECT
+    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    summary='Redirect to original URL',
+    description='Redirect to original URL by short URL ID.'
 )
 async def read_short_url(
         *,
         db: AsyncSession = Depends(get_session),
-        pk: int,
+        pk: UUID,
         request: Request
 ) -> Any:
     """
@@ -69,7 +77,9 @@ async def read_short_url(
 @router.post(
     '/',
     status_code=status.HTTP_201_CREATED,
-    response_model=list[short_schema.ShortUrl]
+    response_model=list[short_schema.ShortUrl],
+    summary='Create short URL',
+    description='Create new shorthand representation by URL.'
 )
 async def create_short_url(
         *,
@@ -91,15 +101,18 @@ async def create_short_url(
 
 @router.get(
     '/{pk}/status',
-    response_model=ShortUrlFullStatistic | ShortUrlUsesCount
+    response_model=ShortUrlFullStatistic | ShortUrlUsesCount,
+    summary='Get URL usage statistics',
+    description='Get URL usage statistics by short url ID. '
+                'Use the "full_info" parameter to show a list of all usages.'
 )
 async def read_short_url_statistic(
         *,
         db: AsyncSession = Depends(get_session),
-        pk: int,
+        pk: UUID,
         full_info: bool = False,
-        skip: int = 0,
-        limit: int = 100
+        skip: int = Query(default=0, ge=0),
+        limit: int = Query(default=100, ge=0)
 ) -> Any:
     """
     Get short url statistic by ID.
@@ -120,11 +133,15 @@ async def read_short_url_statistic(
         )
 
 
-@router.delete('/{pk}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    '/{pk}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    description='Delete URL by short url ID.'
+)
 async def delete_url(
     *,
     db: AsyncSession = Depends(get_session),
-    pk: int
+    pk: UUID
 ) -> None:
     """
     Delete url.

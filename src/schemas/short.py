@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, HttpUrl, AnyHttpUrl
 
@@ -17,7 +18,7 @@ class ShortUrlUpdate(UrlBase):
 
 
 class ShortUrlInDBBase(UrlBase):
-    id: int
+    id: UUID
     url: HttpUrl
     url_short: AnyHttpUrl
     created_at: datetime

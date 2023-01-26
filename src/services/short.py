@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update as sqlalchemy_update
 from sqlalchemy.exc import NoResultFound
@@ -39,7 +40,7 @@ class RepositoryShort(RepositoryDB[Short, ShortUrlCreate, ShortUrlUpdate]):
         results = await db.execute(statement=statement)
         return results.scalars().all()
 
-    async def get(self, db: AsyncSession, pk: int) -> Short | None:
+    async def get(self, db: AsyncSession, pk: UUID) -> Short | None:
         results = await super().get(db=db, pk=pk)
         if not results:
             return None
@@ -47,7 +48,7 @@ class RepositoryShort(RepositoryDB[Short, ShortUrlCreate, ShortUrlUpdate]):
             raise UrlDeletedException
         return results
 
-    async def delete(self, db: AsyncSession, *, pk: int) -> None:
+    async def delete(self, db: AsyncSession, *, pk: UUID) -> None:
         query = (
             sqlalchemy_update(Short)
             .where(Short.id == pk)

@@ -1,5 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError, NoResultFound
 
@@ -14,7 +15,7 @@ from schemas.short_statistic import (
 )
 
 
-async def get_uses_count(db: AsyncSession, pk: int) -> ShortUrlUsesCount:
+async def get_uses_count(db: AsyncSession, pk: UUID) -> ShortUrlUsesCount:
     statement = select(
         Short.id, Short.url, Short.url_short, Short.created_at, Short.deleted,
         func.count(ShortStatistic.id).label('count')
@@ -46,7 +47,7 @@ async def create_statistic_record(
 
 
 async def get_full_statistic(
-        db: AsyncSession, pk: int, skip=0, limit=100
+        db: AsyncSession, pk: UUID, skip=0, limit=100
 ) -> ShortUrlFullStatistic:
 
     count_query = select(

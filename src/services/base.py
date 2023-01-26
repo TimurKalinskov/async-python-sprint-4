@@ -1,4 +1,6 @@
+from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional, Type, TypeVar
+from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -10,20 +12,25 @@ from db.db import Base
 from services.exceptions import CreateException
 
 
-class Repository:
+class Repository(ABC):
 
+    @abstractmethod
     def get(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def get_multi(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def create(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def update(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
     def delete(self, *args, **kwargs):
         raise NotImplementedError
 
@@ -38,7 +45,7 @@ class RepositoryDB(Repository,
     def __init__(self, model: Type[ModelType]):
         self._model = model
 
-    async def get(self, db: AsyncSession, pk: Any) -> Optional[ModelType]:
+    async def get(self, db: AsyncSession, pk: UUID) -> Optional[ModelType]:
         statement = select(self._model).where(self._model.id == pk)
         results = await db.execute(statement=statement)
         return results.scalar_one_or_none()
@@ -84,7 +91,7 @@ class RepositoryDB(Repository,
         await db.refresh(db_obj)
         return db_obj
 
-    async def delete(self, db: AsyncSession, *, pk: int) -> None:
+    async def delete(self, db: AsyncSession, *, pk: UUID) -> None:
         obj = await self.get(db=db, pk=pk)
         if not obj:
             raise NoResultFound

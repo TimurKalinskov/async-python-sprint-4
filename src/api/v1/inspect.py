@@ -15,9 +15,11 @@ router = APIRouter()
 @router.get(
     '/ping',
     responses={
-        400: {'model': DatabaseStatusFail},
-        200: {'model': DatabaseStatusSuccess}
-    }
+        status.HTTP_400_BAD_REQUEST: {'model': DatabaseStatusFail},
+        status.HTTP_200_OK: {'model': DatabaseStatusSuccess}
+    },
+    description='Get database connection status. '
+                'If the database is connected - show information about it.'
 )
 async def ping_database(
         response: Response, db: AsyncSession = Depends(get_session)
