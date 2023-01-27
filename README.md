@@ -112,46 +112,33 @@ GET /<url_id>/status?[full-info]&&[max-result=10]&&[offset=0]
 
 ## Запуск проекта
 
-1. Установите зависимости:
+1. Создайте файл `.env` в папке `src`:
 ```shell
-pip install -r requirements.txt
+touch ./src/.env
 ```
-2. Перейдите в папку `src`:
+2. Пропишите в этом файле переменные окружения:
 ```shell
-cd src
+nano ./src/.env
 ```
-3. Создайте файл `.env`:
-```shell
-touch .env
-```
-4. Пропишите в этом файле переменные окружения:
-```
-DATABASE_DSN=postgresql+asyncpg://<user>:<password>@<host>:<port>/<db_name>
-# например
-DATABASE_DSN=postgresql+asyncpg://postgres:postgres@localhost:5432/urls_db
+
+```text
+POSTGRES_USER=<имя пользователя базы данных>
+POSTGRES_PASSWORD=<пароль пользователя базы данных>
+POSTGRES_DB=<название базы данных>
+DATABASE_DSN=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 ```
 <details>
 <summary> Также можно прописать другие переменные </summary>
 
-```python
-APP_TITLE
-PROJECT_HOST
-PROJECT_PORT
-ECHO_QUERIES
+```
+APP_TITLE=<заголовок приложения>
+ECHO_QUERIES=<True или False (выводить в логах запросы к базе данных)>
+DOMAIN_PREFIX=<префикс к коротким URL (формат - 'test.ru/')>
+LENGTH_URL=<длина коротких URL>
 ```
 </details>
 
-5. Запустите миграции
+3. Запустите docker-compose
 ```shell
-alembic upgrade head
-```
-
-6. Запустите проект:
-```shell
-python main.py
-```
-
-7*. Для запуска тестов:
-```shell
-pytest
+docker-compose up --build
 ```
